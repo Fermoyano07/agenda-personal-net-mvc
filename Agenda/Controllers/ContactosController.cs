@@ -7,9 +7,11 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Agenda.Data;
 using Agenda.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Agenda.Controllers
 {
+    [Authorize]
     public class ContactosController : Controller
     {
         private readonly AgendaContext _context;
@@ -20,9 +22,22 @@ namespace Agenda.Controllers
         }
 
         // GET: Contactos
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string searchString)
         {
-            return View(await _context.Contacto.ToListAsync());
+            //Codigo agregado y modificado para adicion de busqueda
+            if (_context.Contacto == null)
+            {
+                return Problem("Entity set 'MvcContactoContext.Contacto'  is null.");
+            }
+
+            var Contactos = from m in _context.Contacto
+                         select m;
+
+            if (!String.IsNullOrEmpty(searchString))
+            {
+                Contactos = Contactos.Where(s => s.Nombre!.Contains(searchString));
+            }
+            return View(await Contactos.ToListAsync());
         }
 
         // GET: Contactos/Details/5
@@ -54,7 +69,7 @@ namespace Agenda.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Nombre,Apellido,Numero,Email")] Contacto contacto)
+        public async Task<IActionResult> Create([Bind("Id,Nombre,Apellido,Numero,Email,Web")] Contacto contacto)
         {
             if (ModelState.IsValid)
             {
@@ -86,7 +101,7 @@ namespace Agenda.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Nombre,Apellido,Numero,Email")] Contacto contacto)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Nombre,Apellido,Numero,Email, Web")] Contacto contacto)
         {
             if (id != contacto.Id)
             {

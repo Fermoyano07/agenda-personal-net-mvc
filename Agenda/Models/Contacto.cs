@@ -1,4 +1,6 @@
-﻿namespace Agenda.Models
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace Agenda.Models
 {
     public class Contacto
     {
@@ -7,5 +9,6 @@
         public string Apellido { get; set;}
         public int Numero { get; set;}
         public string Email { get; set;}
+        public string Web { get; set; }
     }
 }
